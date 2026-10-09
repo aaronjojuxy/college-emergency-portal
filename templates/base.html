@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Campus Student Emergency Assistance Portal{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <!-- Leaflet Maps CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Custom Portal CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- 24/7 Campus Emergency Quick Banner -->
+    <div class="emergency-top-bar text-center">
+        <div class="container d-flex flex-wrap justify-content-between align-items-center">
+            <div>
+                <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>
+                <strong>CAMPUS 24/7 EMERGENCY ASSISTANCE:</strong>
+                Ambulance: <a href="tel:+919876500108">+91 98765 00108</a> |
+                Security Desk: <a href="tel:+919876500100">+91 98765 00100</a>
+            </div>
+            <div>
+                <span class="siren-badge muted" onclick="toggleSiren()">
+                    <i class="fa-solid fa-volume-xmark"></i> Siren Muted
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm py-2">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <span class="text-danger"><i class="fa-solid fa-shield-halved fa-lg"></i></span>
+                <span>CAMPUS<span class="text-danger">SECURE</span></span>
+                <span class="brand-badge d-none d-md-inline">EMERGENCY ASSIST</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}"><i class="fa-solid fa-house me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('first_aid') }}"><i class="fa-solid fa-heart-pulse text-danger me-1"></i> First Aid Guide</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('campus_directory') }}"><i class="fa-solid fa-phone-volume text-warning me-1"></i> Helplines</a>
+                    </li>
+                    {% if current_user %}
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold text-light" href="{{ url_for('dashboard') }}">
+                            <i class="fa-solid fa-gauge-high text-info me-1"></i> My Dashboard
+                            {% if current_user.role in ['responder', 'admin'] and active_emergencies_count > 0 %}
+                            <span class="badge bg-danger rounded-pill ms-1" id="navActiveBadge">{{ active_emergencies_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if current_user %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-circle-user fa-lg me-1 text-danger"></i>
+                            {{ current_user.full_name }}
+                            <span class="badge bg-secondary ms-1">{{ current_user.role|capitalize }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="fa-solid fa-id-card me-2"></i> Medical & Contact Profile</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('dashboard') }}"><i class="fa-solid fa-table-columns me-2"></i> Dashboard</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Logout</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item me-2">
+                        <a class="btn btn-outline-light btn-sm px-3" href="{{ url_for('login') }}">
+                            <i class="fa-solid fa-right-to-bracket me-1"></i> Sign In
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-danger btn-sm px-3 fw-bold" href="{{ url_for('register') }}">
+                            <i class="fa-solid fa-user-plus me-1"></i> Student Register
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Alert Notifications -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
+                        <i class="fa-solid fa-circle-info me-2"></i> {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content Area -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Universal SOS Countdown Confirmation Modal -->
+    <div class="modal fade" id="sosConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-danger border-2 text-center p-3">
+                <div class="modal-body">
+                    <div class="text-danger mb-3">
+                        <i class="fa-solid fa-triangle-exclamation fa-3x fa-beat"></i>
+                    </div>
+                    <h4 class="fw-bold text-danger">DISPATCHING CAMPUS EMERGENCY SOS</h4>
+                    <p class="text-muted mb-2">Category: <strong id="sosModalTypeLabel" class="text-dark">General Emergency</strong></p>
+                    <p class="small text-muted">Sending live GPS coordinates to Campus Security & Medical Rapid Response Units.</p>
+                    
+                    <div class="my-4">
+                        <div class="display-3 fw-bold text-danger" id="sosCountdownVal">4</div>
+                        <div class="small text-muted">Seconds before automatic broadcast</div>
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-2">
+                        <button type="button" class="btn btn-secondary px-4" id="sosCancelBtn">
+                            <i class="fa-solid fa-xmark me-1"></i> Cancel SOS
+                        </button>
+                        <button type="button" class="btn btn-danger px-4 fw-bold" id="sosSendNowBtn">
+                            <i class="fa-solid fa-bolt me-1"></i> Send Immediately
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row gy-3">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center gap-2 text-light fw-bold fs-5 mb-2">
+                        <i class="fa-solid fa-shield-halved text-danger"></i>
+                        <span>Campus Emergency Assistance Portal</span>
+                    </div>
+                    <p class="small text-muted mb-0">
+                        Rapid incident reporting, live geolocation beaconing, and safety response platform for university students, wardens, and medical personnel.
+                    </p>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="text-light fw-bold">Emergency Hotlines</h6>
+                    <ul class="list-unstyled small mb-0">
+                        <li><i class="fa-solid fa-truck-medical text-danger me-1"></i> Ambulance: <strong>+91 98765 00108</strong></li>
+                        <li><i class="fa-solid fa-shield text-warning me-1"></i> Security: <strong>+91 98765 00100</strong></li>
+                        <li><i class="fa-solid fa-venus text-info me-1"></i> Women Helpline: <strong>+91 98765 00109</strong></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="text-light fw-bold">Quick Links</h6>
+                    <ul class="list-unstyled small mb-0">
+                        <li><a href="{{ url_for('first_aid') }}"><i class="fa-solid fa-chevron-right me-1 text-danger"></i> First Aid Protocols</a></li>
+                        <li><a href="{{ url_for('campus_directory') }}"><i class="fa-solid fa-chevron-right me-1 text-danger"></i> Emergency Directory</a></li>
+                        <li><a href="{{ url_for('login') }}"><i class="fa-solid fa-chevron-right me-1 text-danger"></i> Responder / Staff Portal</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="border-secondary my-3">
+            <div class="text-center small text-muted">
+                &copy; {{ now.year }} College Campus Safety & Student Welfare Division. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Leaflet Maps JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Custom Portal Engine JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

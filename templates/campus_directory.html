@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Campus Emergency Helplines Directory{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold text-dark mb-1">
+            <i class="fa-solid fa-phone-volume text-danger me-2"></i> Campus Emergency Directory
+        </h2>
+        <p class="text-muted col-lg-7 mx-auto">
+            Direct telephone speed-dial numbers for university emergency services, health centers, security desks, and student support helplines.
+        </p>
+    </div>
+
+    <div class="row g-4">
+        {% for c in contacts %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card dashboard-card h-100 p-4 border">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-danger-subtle text-danger fw-bold">{{ c.category }}</span>
+                    <span class="badge bg-light text-dark border">{{ c.availability }}</span>
+                </div>
+                <h5 class="fw-bold mb-2 text-dark">{{ c.name }}</h5>
+                <p class="small text-muted mb-3 flex-grow-1">{{ c.description or 'Official campus helpline.' }}</p>
+
+                <div class="pt-3 border-top mt-auto">
+                    <div class="fs-5 fw-bold text-danger mb-2">
+                        <i class="fa-solid fa-phone me-1"></i> {{ c.phone }}
+                    </div>
+                    <a href="tel:{{ c.phone }}" class="btn btn-danger btn-sm w-100 fw-bold">
+                        <i class="fa-solid fa-phone-flip me-1"></i> Call Hotline Now
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Quick Campus Help Note -->
+    <div class="card bg-white border shadow-sm p-4 mt-5 text-center col-lg-8 mx-auto">
+        <h5 class="fw-bold text-danger mb-2"><i class="fa-solid fa-shield-halved me-2"></i>Campus Security Control Room Protocol</h5>
+        <p class="small text-muted mb-0">
+            For unlisted emergencies or off-campus escort requests within 3 km of the university boundaries, directly dial the Main Gate Security Guard Cabin at <strong>+91 98765 00100</strong>.
+        </p>
+    </div>
+</div>
+{% endblock %}

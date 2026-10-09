@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency Profile & Medical Dossier | Campus Portal{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="bg-danger text-white p-4">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div>
+                            <h3 class="fw-bold mb-1">
+                                <i class="fa-solid fa-id-card-clip me-2"></i> Safety & Medical Profile
+                            </h3>
+                            <p class="small text-white-50 mb-0">Ensure your contact and health information is current for first responders</p>
+                        </div>
+                        <span class="badge bg-white text-danger fw-bold fs-6 px-3 py-2">
+                            Role: {{ user.role|capitalize }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 p-md-5 bg-white">
+                    <form method="POST" action="{{ url_for('profile') }}">
+                        <!-- Basic Info -->
+                        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                            <i class="fa-solid fa-user text-danger me-2"></i> Personal Information
+                        </h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Username / Account ID</label>
+                                <input type="text" class="form-control bg-light" value="{{ user.username }}" readonly disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Full Legal Name</label>
+                                <input type="text" class="form-control" name="full_name" value="{{ user.full_name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Primary Contact Phone</label>
+                                <input type="tel" class="form-control" name="phone" value="{{ user.phone }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Email Address</label>
+                                <input type="email" class="form-control" name="email" value="{{ user.email or '' }}">
+                            </div>
+                        </div>
+
+                        <!-- Campus Residence Details -->
+                        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                            <i class="fa-solid fa-building text-danger me-2"></i> Campus Residence Location
+                        </h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Hostel / Campus Block</label>
+                                <input type="text" class="form-control" name="hostel_block" value="{{ user.hostel_block or '' }}" placeholder="e.g. Hostel Block B (Boys)">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Room Number / Office Number</label>
+                                <input type="text" class="form-control" name="room_no" value="{{ user.room_no or '' }}" placeholder="e.g. Room 304, 3rd Floor">
+                            </div>
+                        </div>
+
+                        <!-- Medical Dossier -->
+                        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                            <i class="fa-solid fa-heart-pulse text-danger me-2"></i> Medical Dossier (Emergency Access Only)
+                        </h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Blood Group</label>
+                                <select class="form-select" name="blood_group">
+                                    {% for bg in ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] %}
+                                    <option value="{{ bg }}" {% if user.blood_group == bg %}selected{% endif %}>{{ bg }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold">Allergies / Critical Health Conditions</label>
+                                <input type="text" class="form-control" name="medical_notes" value="{{ user.medical_notes or '' }}" placeholder="e.g. Severe peanut allergy, Asthma, Type-1 Diabetic">
+                            </div>
+                        </div>
+
+                        <!-- Primary Emergency Contact -->
+                        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                            <i class="fa-solid fa-phone-flip text-danger me-2"></i> Emergency Contact (Parent / Guardian)
+                        </h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Contact Person Name & Relationship</label>
+                                <input type="text" class="form-control" name="emergency_contact_name" value="{{ user.emergency_contact_name or '' }}" placeholder="e.g. Robert Rivera (Father)">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Emergency Phone Number</label>
+                                <input type="tel" class="form-control" name="emergency_contact_phone" value="{{ user.emergency_contact_phone or '' }}" placeholder="+91 98765 88990">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center pt-2">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+                            </a>
+                            <button type="submit" class="btn btn-danger fw-bold px-4">
+                                <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

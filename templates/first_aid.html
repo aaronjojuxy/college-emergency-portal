@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency First Aid Protocols | Campus Emergency Portal{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="text-center mb-4">
+        <h2 class="fw-bold text-dark mb-1">
+            <i class="fa-solid fa-kit-medical text-danger me-2"></i> Campus First Aid & Emergency Guidelines
+        </h2>
+        <p class="text-muted col-lg-8 mx-auto">
+            Standard step-by-step first responder actions while campus ambulance and medical personnel are on their way.
+        </p>
+
+        <!-- Search & Filter Controls -->
+        <div class="col-lg-8 mx-auto mt-3">
+            <form method="GET" action="{{ url_for('first_aid') }}" class="row g-2 justify-content-center">
+                <div class="col-md-7">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                        <input type="text" class="form-control" name="search" placeholder="Search protocol (e.g. CPR, bleeding, burns, shock)..." value="{{ search_query or '' }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="category">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-danger w-100 fw-bold">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Guides List -->
+    <div class="row g-4">
+        {% for guide in guides %}
+        <div class="col-lg-6" id="guide-{{ guide.id }}">
+            <div class="card dashboard-card h-100 p-4 border">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="p-2 bg-danger-subtle text-danger rounded-3 fs-4">
+                            <i class="fa-solid {{ guide.icon or 'fa-briefcase-medical' }}"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold text-dark mb-0">{{ guide.title }}</h5>
+                            <span class="badge bg-secondary-subtle text-dark">{{ guide.category }}</span>
+                        </div>
+                    </div>
+                    <span class="badge {% if guide.urgency == 'Critical' %}badge-critical{% else %}badge-high{% endif %}">
+                        {{ guide.urgency }} Priority
+                    </span>
+                </div>
+
+                <div class="alert alert-warning py-2 px-3 small my-2">
+                    <i class="fa-solid fa-triangle-exclamation me-1"></i> <strong>Key Symptoms:</strong> {{ guide.symptoms }}
+                </div>
+
+                <!-- Steps -->
+                <h6 class="fw-bold text-danger mt-3 mb-2 small text-uppercase">
+                    <i class="fa-solid fa-list-ol me-1"></i> Immediate Life-Saving Steps:
+                </h6>
+                <ol class="list-unstyled mb-3">
+                    {% for step in guide.steps %}
+                    <li class="d-flex align-items-start mb-2 small">
+                        <span class="first-aid-step-num">{{ loop.index }}</span>
+                        <span class="text-dark">{{ step }}</span>
+                    </li>
+                    {% endfor %}
+                </ol>
+
+                <!-- Dos and Don'ts -->
+                <div class="row g-2 mt-auto pt-2 border-top">
+                    <div class="col-sm-6">
+                        <div class="p-2 bg-success-subtle rounded-2 small h-100">
+                            <div class="fw-bold text-success mb-1"><i class="fa-solid fa-circle-check me-1"></i> DO:</div>
+                            <ul class="mb-0 ps-3">
+                                {% for item in guide.dos_and_donts.dos %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-2 bg-danger-subtle rounded-2 small h-100">
+                            <div class="fw-bold text-danger mb-1"><i class="fa-solid fa-circle-xmark me-1"></i> DO NOT:</div>
+                            <ul class="mb-0 ps-3">
+                                {% for item in guide.dos_and_donts.donts %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 text-end">
+                    <a href="tel:+919876500108" class="btn btn-outline-danger btn-sm">
+                        <i class="fa-solid fa-phone me-1"></i> Call Campus Ambulance (+91 98765 00108)
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5 text-muted">
+            <i class="fa-solid fa-magnifying-glass fa-3x mb-3 text-secondary"></i>
+            <h5>No first aid guides match your search.</h5>
+            <a href="{{ url_for('first_aid') }}" class="btn btn-outline-secondary btn-sm mt-2">Reset Filters</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

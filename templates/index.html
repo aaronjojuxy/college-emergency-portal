@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Campus Student Emergency Assistance Portal | Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Glowing SOS Trigger -->
+<section class="py-5 bg-white border-bottom shadow-sm">
+    <div class="container text-center">
+        <div class="badge bg-danger-subtle text-danger border border-danger px-3 py-2 rounded-pill mb-3 fw-bold">
+            <i class="fa-solid fa-circle-dot fa-fade text-danger me-1"></i> ACTIVE CAMPUS EMERGENCY BEACON
+        </div>
+        <h1 class="display-5 fw-bolder text-dark mb-2">Student Emergency Assistance Portal</h1>
+        <p class="lead text-muted mx-auto col-lg-8 mb-4">
+            Instant panic alerts, campus security dispatch, medical emergency response, and verified safety protocols for university students & staff.
+        </p>
+
+        <!-- Big Central SOS Panic Button -->
+        <div class="sos-container">
+            {% if current_user and current_user.role == 'student' %}
+                <button type="button" class="btn-sos" onclick="startSosCountdown('General Security', 'Critical')">
+                    <span>SOS</span>
+                    <span class="sub-text"><i class="fa-solid fa-hand-fist"></i> TAP FOR HELP</span>
+                </button>
+            {% elif current_user %}
+                <a href="{{ url_for('dashboard') }}" class="btn-sos text-decoration-none">
+                    <span style="font-size: 1.4rem;">PORTAL</span>
+                    <span class="sub-text">VIEW DASHBOARD</span>
+                </a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn-sos text-decoration-none">
+                    <span>SOS</span>
+                    <span class="sub-text">LOGIN TO SIGNAL</span>
+                </a>
+            {% endif %}
+            <div class="text-danger mt-3 fw-bold small">
+                <i class="fa-solid fa-location-crosshairs me-1"></i> Broadcasts GPS Coordinates & Medical Profile to Campus Control Room
+            </div>
+        </div>
+
+        <!-- Demo Accounts Quick Reference Bar -->
+        <div class="col-lg-8 mx-auto mt-2">
+            <div class="card bg-light border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center justify-content-center flex-wrap gap-3 small">
+                    <span class="fw-bold text-dark"><i class="fa-solid fa-key text-warning me-1"></i> Quick Demo Logins:</span>
+                    <span class="badge bg-secondary">Student: <code>student1</code> / <code>password123</code></span>
+                    <span class="badge bg-secondary">Responder: <code>security1</code> / <code>security123</code></span>
+                    <span class="badge bg-secondary">Admin: <code>admin</code> / <code>admin123</code></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Emergency Category Selector Cards -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h3 class="fw-bold">Report Specific Campus Incident</h3>
+            <p class="text-muted">Select an incident category below for immediate priority routing</p>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-4 col-sm-6">
+                <div class="category-card h-100" onclick="{% if current_user and current_user.role == 'student' %}startSosCountdown('Medical Emergency', 'Critical'){% else %}window.location='{{ url_for('login') }}'{% endif %}">
+                    <div class="category-icon text-danger"><i class="fa-solid fa-truck-medical"></i></div>
+                    <h5 class="fw-bold">Medical Emergency</h5>
+                    <p class="small text-muted mb-0">Severe injury, asthma, chest pain, fainting, or allergic reaction requiring ambulance.</p>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+                <div class="category-card h-100" onclick="{% if current_user and current_user.role == 'student' %}startSosCountdown('Harassment/Ragging', 'Critical'){% else %}window.location='{{ url_for('login') }}'{% endif %}">
+                    <div class="category-icon text-warning"><i class="fa-solid fa-shield-virus"></i></div>
+                    <h5 class="fw-bold">Ragging & Harassment</h5>
+                    <p class="small text-muted mb-0">Hostel bullying, stalking, physical threat, or distress in campus premises.</p>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+                <div class="category-card h-100" onclick="{% if current_user and current_user.role == 'student' %}startSosCountdown('Fire & Chemical Hazard', 'Critical'){% else %}window.location='{{ url_for('login') }}'{% endif %}">
+                    <div class="category-icon text-danger"><i class="fa-solid fa-fire-flame-curved"></i></div>
+                    <h5 class="fw-bold">Fire & Hazard</h5>
+                    <p class="small text-muted mb-0">Hostel fire, chemistry lab toxic spill, gas leak, or electrical hazard.</p>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+                <div class="category-card h-100" onclick="{% if current_user and current_user.role == 'student' %}startSosCountdown('Mental Health Crisis', 'High'){% else %}window.location='{{ url_for('login') }}'{% endif %}">
+                    <div class="category-icon text-info"><i class="fa-solid fa-head-side-heart"></i></div>
+                    <h5 class="fw-bold">Mental Health Distress</h5>
+                    <p class="small text-muted mb-0">Severe panic attack, extreme psychological distress, urgent student counseling.</p>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+                <div class="category-card h-100" onclick="{% if current_user and current_user.role == 'student' %}startSosCountdown('Hostel Security', 'High'){% else %}window.location='{{ url_for('login') }}'{% endif %}">
+                    <div class="category-icon text-dark"><i class="fa-solid fa-building-shield"></i></div>
+                    <h5 class="fw-bold">Hostel Intruder / Break-In</h5>
+                    <p class="small text-muted mb-0">Unauthorized persons in hostel corridors, theft, lock tamper, or room distress.</p>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+                <div class="category-card h-100" onclick="{% if current_user and current_user.role == 'student' %}startSosCountdown('General Security Alert', 'Medium'){% else %}window.location='{{ url_for('login') }}'{% endif %}">
+                    <div class="category-icon text-primary"><i class="fa-solid fa-bell"></i></div>
+                    <h5 class="fw-bold">General Urgent Help</h5>
+                    <p class="small text-muted mb-0">Campus transit breakdown, locked out in secluded area, or night safety escort.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Campus Speed Dial Helplines -->
+<section class="py-5 bg-white border-top">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="fa-solid fa-phone-volume text-danger me-2"></i>Campus Emergency Speed-Dial</h3>
+                <p class="text-muted mb-0">Immediate telephone contacts for 24/7 campus authorities</p>
+            </div>
+            <a href="{{ url_for('campus_directory') }}" class="btn btn-outline-dark btn-sm">
+                View Full Directory <i class="fa-solid fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row g-3">
+            {% for contact in emergency_contacts %}
+            <div class="col-md-4 col-sm-6">
+                <div class="card dashboard-card h-100 p-3 border">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-danger-subtle text-danger fw-bold">{{ contact.category }}</span>
+                        <span class="badge bg-light text-muted border">{{ contact.availability }}</span>
+                    </div>
+                    <h6 class="fw-bold mb-1">{{ contact.name }}</h6>
+                    <p class="small text-muted mb-3 flex-grow-1">{{ contact.description }}</p>
+                    <a href="tel:{{ contact.phone }}" class="btn btn-outline-danger fw-bold btn-sm mt-auto">
+                        <i class="fa-solid fa-phone me-1"></i> Call {{ contact.phone }}
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Critical First Aid Highlights -->
+<section class="py-5 bg-light border-top">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="fa-solid fa-kit-medical text-danger me-2"></i>Instant First Aid Guides</h3>
+                <p class="text-muted mb-0">Step-by-step life saving actions while campus medical help is in transit</p>
+            </div>
+            <a href="{{ url_for('first_aid') }}" class="btn btn-outline-danger btn-sm">
+                All Guidelines <i class="fa-solid fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row g-3">
+            {% for guide in top_guides %}
+            <div class="col-md-3 col-sm-6">
+                <div class="card dashboard-card h-100 p-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="fa-solid {{ guide.icon }} text-danger fs-4"></i>
+                        <h6 class="fw-bold mb-0">{{ guide.title }}</h6>
+                    </div>
+                    <p class="small text-muted mb-3">{{ guide.symptoms }}</p>
+                    <a href="{{ url_for('first_aid') }}#guide-{{ guide.id }}" class="btn btn-sm btn-light border text-danger fw-bold mt-auto">
+                        View Steps <i class="fa-solid fa-angle-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
